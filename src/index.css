@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+body {
+  font: 14px 'Lato', sans-serif;
+  margin: 20px;
+}
+
+.board-wrapper {
+  background-color: #ddd;
+  border: 8px inset #999;
+  width: min-content;
+  height: min-content;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0px;
+}
+
+.throne {
+  background-color: #DD0;
+}
+
+.corner { 
+  background-color: #09F;
+}
+
+.square {
+  border: 1px solid #999;
+  text-align: center;
+  height: 36px;
+  width: 36px;
+  /* padding-top: 2px; */
+  /* margin-bottom: -2px; */
+}
+
+.square-hover {
+  background-color: #F00;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
