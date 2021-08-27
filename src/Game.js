@@ -181,6 +181,7 @@ export class Game extends React.Component {
     }
 
     movePiece = (fromX, fromY, toX, toY) => {
+        // PROBLEM: once you move a piece to a spot that was originally empty, it loses its ability to move
         console.log(`Moving from ${fromX},${fromY} to ${toX},${toY}`);
         let squares = this.state.squares.slice();
         squares[toY][toX] = squares[fromY][fromX];
@@ -189,12 +190,10 @@ export class Game extends React.Component {
             squares,
             currentTurn: (this.state.currentTurn === "A" ? "D" : "A")
         });
-        // TODO: verify order of function calls - escape before capture *should* be ok, but needs to be tested
-        // PROBLEM: once you move a piece to a spot that was originally empty, it loses its ability to move
+        this.captureCheck(toX, toY);
         if (this.escapeCheck()) {
             this.setState({ currentTurn: "DW" }); // defenders win
         }
-        this.captureCheck(toX, toY);
     }
 
     escapeCheck = () => {
