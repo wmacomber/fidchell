@@ -8,6 +8,7 @@ export class Game extends React.Component {
     constructor(props) {
         super(props);
         this.cornersWin = true; // you can only win by getting the king to the corner
+        this.armedKing = true; // king can help capture pieces
         this.turnTypes = {
             "A": "Attacker", 
             "D": "Defender", 
@@ -47,6 +48,10 @@ export class Game extends React.Component {
         console.log("Game reset");
     }
 
+    componentDidUpdate(prevProps, prevState) {
+
+    }
+
     logSquaresState = () => {
         console.log(this.state.squares);
     }
@@ -65,6 +70,10 @@ export class Game extends React.Component {
 
     isDefenderOrKing = (x, y) => {
         return (this.isDefender(x, y) || this.isKing(x, y));
+    }
+
+    isValidDefender = (x, y) => {
+        return ((this.armedKing && this.isDefenderOrKing(x, y)) || (this.isDefender(x, y)));
     }
 
     isEmptySquare = (x, y) => {
@@ -180,10 +189,12 @@ export class Game extends React.Component {
             squares,
             currentTurn: (this.state.currentTurn === "A" ? "D" : "A")
         });
+        // TODO: verify order of function calls - escape before capture *should* be ok, but needs to be tested
         // PROBLEM: once you move a piece to a spot that was originally empty, it loses its ability to move
         if (this.escapeCheck()) {
             this.setState({ currentTurn: "DW" }); // defenders win
         }
+        this.captureCheck(toX, toY);
     }
 
     escapeCheck = () => {
@@ -207,8 +218,37 @@ export class Game extends React.Component {
         return false;
     }
 
-    captureCheck() {
-        // TODO
+    captureCheck = (x, y) => {
+        let squares = this.state.squares.slice();
+        if (this.isAttacker(x, y)) {
+            if (x - 2 >= 0 && this.isDefender(x-1, y) && this.isAttacker(x-2, y)) {
+                squares[y][x-1] = "";
+            }
+            if (x + 2 <= 6 && this.isDefender(x+1, y) && this.isAttacker(x+2, y)) {
+                squares[y][x+1] = "";
+            }
+            if (y - 2 >= 0 && this.isDefender(x, y-1) && this.isAttacker(x, y-2)) {
+                squares[y-1][x] = "";
+            }
+            if (y + 2 <= 6 && this.isDefender(x, y+1) && this.isAttacker(x, y+2)) {
+                squares[y+1][x] = "";
+            }
+        }
+        if (this.isValidDefender(x, y)) {
+            if (x - 2 >= 0 && this.isAttacker(x-1, y) && this.isValidDefender(x-2, y)) {
+                squares[y][x-1] = "";
+            }
+            if (x + 2 <= 6 && this.isAttacker(x+1, y) && this.isValidDefender(x+2, y)) {
+                squares[y][x+1] = "";
+            }
+            if (y - 2 >= 0 && this.isAttacker(x, y-1) && this.isValidDefender(x, y-2)) {
+                squares[y-1][x] = "";
+            }
+            if (y + 2 <= 6 && this.isAttacker(x, y+1) && this.isValidDefender(x, y+2)) {
+                squares[y+1][x] = "";
+            }
+        }
+        this.setState({ squares });
     }
 
     render() {
