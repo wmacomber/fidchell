@@ -1,8 +1,6 @@
 import React from "react";
 import Board from "./Board";
 import { PieceTypes } from "./PieceTypes";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { DeepDiff } from 'deep-diff';
 
 export class Game extends React.Component {
@@ -324,16 +322,14 @@ export class Game extends React.Component {
         return (
             <div className="game-wrapper">
                 <div id="game-board" className="board-wrapper">
-                    <DndProvider backend={HTML5Backend}>
-                        <Board 
-                            {...this.state} 
-                            getPieceInHand={this.getPieceInHand}
-                            isPieceInHand={this.isPieceInHand}
-                            isLegalMove={this.isLegalMove}
-                            pickUpPiece={this.pickUpPiece}
-                            tryMovePiece={this.tryMovePiece}
-                            />
-                    </DndProvider>
+                    <Board 
+                        {...this.state} 
+                        getPieceInHand={this.getPieceInHand}
+                        isPieceInHand={this.isPieceInHand}
+                        isLegalMove={this.isLegalMove}
+                        pickUpPiece={this.pickUpPiece}
+                        tryMovePiece={this.tryMovePiece}
+                        />
                 </div>
                 <button onClick={() => this.resetGame()}>Reset Board</button>
                 <button onClick={() => this.clearBoard()}>Clear Board</button>
