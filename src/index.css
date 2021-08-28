@@ -36,6 +36,14 @@ body {
   background-color: #F00;
 }
 
+.square-hover-ok {
+  background-color: #0F0;
+}
+
+.square-hover-bad {
+  background-color: #F00;
+}
+
 .square:focus {
   outline: none;
 }

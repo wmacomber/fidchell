@@ -1,44 +1,56 @@
 import React from "react";
-import Piece from "./Piece";
-import { PieceTypes } from "./PieceTypes";
-import { useDrop } from "react-dnd";
 
-export default function Square(props) {
+export default class Square extends React.Component {
     // props contains x, y, isThrone, isCorner, piece
+    constructor(props) {
+        super(props);
+        this.classNames = ["square"];
+        if (this.props.isThrone) {
+            this.classNames.push("throne");
+        }
+        if (this.props.isCorner) {
+            this.classNames.push("corner");
+        }
+        this.state = {
+            hoverClass: null
+        }
+        this.divRef = React.createRef();
+    }
 
-    const key = `${props.x}~${props.y}`;
-    const [{ canDrop, isOver }, drop] = useDrop(() => ({
-        accept: [ PieceTypes.ATTACKER, PieceTypes.DEFENDER, PieceTypes.KING ],
-        drop: () => {
-            return ({ name: key })
-        },
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop()
-        })
-    }));
-    const isActive = canDrop && isOver;
+    handleClick = () => {
+        if (!this.props.isPieceInHand()) {
+            return false;
+        }
+        this.props.tryMovePiece(this.props.x, this.props.y);
+    }
 
-    let classNames = "square";
-    if (props.isThrone) {
-        classNames += " throne";
+    handleMouseEnter = (e) => {
+        if (this.props.isPieceInHand()) {
+            const piece = this.props.getPieceInHand();
+            if (this.props.isLegalMove(piece.pieceOrigX, piece.pieceOrigY, this.props.x, this.props.y)) {
+                this.divRef.current.classList.add("square-hover-ok");
+            } else {
+                this.divRef.current.classList.add("square-hover-bad");
+            }
+        }
     }
-    if (props.isCorner) {
-        classNames += " corner";
+
+    handleMouseLeave = (e) => {
+        this.divRef.current.classList.remove("square-hover-ok");
+        this.divRef.current.classList.remove("square-hover-bad");
     }
-    if (isActive) {
-        classNames += " square-hover";
+
+    render() {
+        const key = `${this.props.x}~${this.props.y}`;
+        const classNames = this.classNames.join(" ");
+        return (
+            <div ref={this.divRef} key={key} className={classNames} x={this.props.x} y={this.props.y} 
+                onClick={this.handleClick} 
+                onMouseEnter={this.handleMouseEnter}
+                onMouseLeave={this.handleMouseLeave}
+                >
+                {this.props.children}
+            </div>
+        );
     }
-    return (
-        <div ref={drop} className={classNames} x={props.x} y={props.y}>
-            <Piece 
-                key={key}
-                type={props.piece} 
-                fromX={props.x} 
-                fromY={props.y} 
-                pickUpPiece={props.pickUpPiece}
-                tryMovePiece={props.tryMovePiece}
-                />
-        </div>
-    );
 }
