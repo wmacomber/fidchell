@@ -243,6 +243,7 @@ export class Game extends React.Component {
         this.captureCheck(toX, toY);
         // check if this move triggers an escape for the king - only need to check when the king moves
         if (movedPiece === "K" && this.escapeCheck()) {
+            console.log("Defenders win!");
             this.setState({ currentTurn: "DW" }); // defenders win
         }
         return true;
@@ -275,7 +276,8 @@ export class Game extends React.Component {
     }
 
     captureCheck = (x, y) => {
-        // this code was largely copied from a decade+ old Java project of mine and it's buggy
+        x = Number(x);
+        y = Number(y);
         let squares = this.state.squares.slice();
         if (this.isAttacker(x, y)) {
             console.log(`Checking captures for attacker at ${x},${y}`);
