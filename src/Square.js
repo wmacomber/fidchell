@@ -9,7 +9,9 @@ export default function Square(props) {
     const key = `${props.x}~${props.y}`;
     const [{ canDrop, isOver }, drop] = useDrop(() => ({
         accept: [ PieceTypes.ATTACKER, PieceTypes.DEFENDER, PieceTypes.KING ],
-        drop: () => ({ name: key }),
+        drop: () => {
+            return ({ name: key })
+        },
         collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop()
@@ -30,13 +32,12 @@ export default function Square(props) {
     return (
         <div ref={drop} className={classNames} x={props.x} y={props.y}>
             <Piece 
+                key={key}
                 type={props.piece} 
                 fromX={props.x} 
                 fromY={props.y} 
-                isLegalMove={props.isLegalMove}
                 pickUpPiece={props.pickUpPiece}
-                replacePiece={props.replacePiece}
-                movePiece={props.movePiece}
+                tryMovePiece={props.tryMovePiece}
                 />
         </div>
     );

@@ -21,11 +21,9 @@ export default class Board extends React.Component {
                         y={y} 
                         isThrone={isThrone} 
                         isCorner={isCorner} 
-                        piece={this.props.squares[y][x]} 
-                        isLegalMove={this.props.isLegalMove}
+                        piece={this.props.squares[_y][_x]} 
                         pickUpPiece={this.props.pickUpPiece}
-                        replacePiece={this.props.replacePiece}
-                        movePiece={this.props.movePiece}
+                        tryMovePiece={this.props.tryMovePiece}
                         />
                 );
             }

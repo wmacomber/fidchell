@@ -3,6 +3,7 @@ import Board from "./Board";
 import { PieceTypes } from "./PieceTypes";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+//import { DeepDiff } from 'deep-diff';
 
 export class Game extends React.Component {
     constructor(props) {
@@ -48,8 +49,15 @@ export class Game extends React.Component {
         console.log("Game reset");
     }
 
-    componentDidUpdate(prevProps, prevState) {
-
+    componentDidUpdate = (prevProps, prevState) => {
+        /*
+        const diff = DeepDiff(prevState, this.state);
+        if (diff === undefined) {
+            return;
+        }
+        console.log("GAME COMPONENTDIDUPDATE STATE DIFF:");
+        console.log(diff);
+        */
     }
 
     logSquaresState = () => {
@@ -82,16 +90,27 @@ export class Game extends React.Component {
 
     pickUpPiece = (x, y) => {
         if (!this.isEmptySquare(x, y)) {
-            let squares = this.state.squares.slice();
-            const pieceInHand = squares[y][x];
+            const pieceInHand = this.state.squares[y][x];
+            //let squares = this.state.squares.slice();
             //squares[y][x] = "";
             this.setState({ 
-                squares, 
+                //squares, 
                 pieceInHand, 
                 pieceOrigX: x, 
                 pieceOrigY: y 
             });
         }
+    }
+
+    tryMovePiece = (toX, toY) => {
+        if (this.state.pieceInHand === null) {
+            return false;
+        }
+        if (!this.movePiece(this.state.pieceOrigX, this.state.pieceOrigY, toX, toY)) {
+            this.replacePiece();
+            return false;
+        }
+        return true;
     }
 
     replacePiece = () => {
@@ -109,7 +128,6 @@ export class Game extends React.Component {
     }
 
     isLegalMove = (fromX, fromY, toX, toY) => {
-        console.log(`isLegalMove() from ${fromX},${fromY} to ${toX},${toY}`);
         if (fromX === toX && fromY === toY) {
             console.log("--No change");
             return false;
@@ -181,19 +199,23 @@ export class Game extends React.Component {
     }
 
     movePiece = (fromX, fromY, toX, toY) => {
+        if (!this.isLegalMove(fromX, fromY, toX, toY)) {
+            return false;
+        }
         // PROBLEM: once you move a piece to a spot that was originally empty, it loses its ability to move
         console.log(`Moving from ${fromX},${fromY} to ${toX},${toY}`);
+        this.captureCheck(toX, toY);
         let squares = this.state.squares.slice();
-        squares[toY][toX] = squares[fromY][fromX];
+        squares[toY][toX] = this.state.squares[fromY][fromX];
         squares[fromY][fromX] = "";
         this.setState({ 
             squares,
             currentTurn: (this.state.currentTurn === "A" ? "D" : "A")
         });
-        this.captureCheck(toX, toY);
         if (this.escapeCheck()) {
             this.setState({ currentTurn: "DW" }); // defenders win
         }
+        return true;
     }
 
     escapeCheck = () => {
@@ -215,6 +237,11 @@ export class Game extends React.Component {
             }
         }
         return false;
+    }
+
+    surroundedCheck = () => {
+        // TODO: code to check if King is surrounded by attackers
+        // remember that if cornersWin is set that King only needs to be surrounded on 3 sides
     }
 
     captureCheck = (x, y) => {
@@ -250,17 +277,15 @@ export class Game extends React.Component {
         this.setState({ squares });
     }
 
-    render() {
+    render = () => {
         return (
             <div className="game-wrapper">
                 <div id="game-board" className="board-wrapper">
                     <DndProvider backend={HTML5Backend}>
                         <Board 
                             {...this.state} 
-                            isLegalMove={this.isLegalMove}
                             pickUpPiece={this.pickUpPiece}
-                            replacePiece={this.replacePiece}
-                            movePiece={this.movePiece}
+                            tryMovePiece={this.tryMovePiece}
                             />
                     </DndProvider>
                 </div>
