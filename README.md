@@ -8,11 +8,11 @@ Fidchell seems to be related to the [Tafl family](https://en.wikipedia.org/wiki/
 
 Attacker side (the white pieces that start along the perimeter of the board) goes first.  You can move as many spaces as you like, as long as you don't land on another piece, don't move through other pieces, and don't move diagonally.  
 
-A player captures their opponent's piece by trapping it between two pieces.  This works for either the Attacker or the Defender.  The King doesn't help in captures (though coded for a variant called the Armed King, in which the King **can** help capture), but he does have the advantage of being the only piece to be able to sit on the throne without being sacrificed.  He can move around, and in fact his moving is required in order for the Defender to win the game.  The King must make it to either the edge of the board or the corners, depending on the players' choice.
+A player captures their opponent's piece by trapping it between two pieces.  This works for either the Attacker or the Defender.  The King doesn't help in captures (though I've coded for a variant called the Armed King, in which the King **can** help capture), but he does have the advantage of being the only piece to be able to sit on the throne without being sacrificed.  He can move around, and in fact his moving is required in order for the Defender to win the game.  The King must make it to either the edge of the board or the corners, depending on the players' choice (well, I haven't made a selectable option yet, only a code option, so right now the game is corners win and armed king).
 
 You can't land on the throne unless you're capturing a piece, in which case the piece being captured AND the piece landing on the throne are both sacrificed.
 
-The Attackers win by boxing in the King on all four sides.
+The Attackers win by boxing in the King on all four sides.  Or on three sides, in the case that the game is corners win (since the king might be on an edge space).
 
 ## Comments
 

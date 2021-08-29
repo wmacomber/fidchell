@@ -276,7 +276,8 @@ export class Game extends React.Component {
         if (this.surroundedCheck()) {
             this.attackersWin();
         }
-        // keep track of the moves so we can check if the players are just going back and forth
+        // keep track of the moves so we can check if the players are just going back and forth,
+        // end the game with this.nobodyWins() if they are
         let moves = this.state.moves.slice();
         const lastMove = { piece: movedPiece, x: toX, y: toY };
         // TODO: compare the last moves, remember that turns alternate
