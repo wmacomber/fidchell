@@ -179,6 +179,10 @@ export class Game extends React.Component {
         fromY = Number(fromY);
         toX = Number(toX);
         toY = Number(toY);
+        if (this.state.currentTurn === "DW" || this.state.currentTurn === "AW" || this.state.currentTurn === "DRAW") {
+            if (!silent) console.log("--Game is already over, no more moves");
+            return false;
+        }
         if (fromX === toX && fromY === toY) {
             if (!silent) console.log("--No change");
             return false;
@@ -266,8 +270,13 @@ export class Game extends React.Component {
             pieceOrigY: null,
             currentTurn: (this.state.currentTurn === "A" ? "D" : "A")
         });
-        // check if we just captured a piece - this can remove pieces from the board state
-        this.captureCheck(toX, toY);
+        // check if we just captured a piece
+        const removePieces = this.captureCheck(toX, toY);
+        // remove any pieces we captured
+        for (const coords of removePieces) {
+            squares[coords.y][coords.x] = "";
+        }
+        this.setState({ squares: squares });
         // check if this move triggers an escape for the king - only need to check when the king moves
         if (movedPiece === "K" && this.escapeCheck()) {
             this.defendersWin();
@@ -344,46 +353,38 @@ export class Game extends React.Component {
     captureCheck = (x, y) => {
         x = Number(x);
         y = Number(y);
-        let squares = this.state.squares.slice();
+        let removePieces = [];
         if (this.isAttacker(x, y)) {
             console.log(`Checking captures for attacker at ${x},${y}`);
             if (x - 2 >= 0 && this.isDefender(x-1, y) && this.isAttacker(x-2, y)) {
-                console.log("capture A");
-                squares[y][x-1] = "";
+                removePieces.push({ x: x-1, y });
             }
             if (x + 2 <= 6 && this.isDefender(x+1, y) && this.isAttacker(x+2, y)) {
-                console.log("capture B");
-                squares[y][x+1] = "";
+                removePieces.push({ x: x+1, y });
             }
             if (y - 2 >= 0 && this.isDefender(x, y-1) && this.isAttacker(x, y-2)) {
-                console.log("capture C");
-                squares[y-1][x] = "";
+                removePieces.push({ x, y: y-1 });
             }
             if (y + 2 <= 6 && this.isDefender(x, y+1) && this.isAttacker(x, y+2)) {
-                console.log("capture D");
-                squares[y+1][x] = "";
+                removePieces.push({ x, y: y+1 });
             }
         }
         if (this.isValidDefender(x, y)) {
             console.log(`Checking captures for defender at ${x},${y}`);
             if (x - 2 >= 0 && this.isAttacker(x-1, y) && this.isValidDefender(x-2, y)) {
-                console.log("capture A");
-                squares[y][x-1] = "";
+                removePieces.push({ x: x-1, y });
             }
             if (x + 2 <= 6 && this.isAttacker(x+1, y) && this.isValidDefender(x+2, y)) {
-                console.log("capture B");
-                squares[y][x+1] = "";
+                removePieces.push({ x: x+1, y });
             }
             if (y - 2 >= 0 && this.isAttacker(x, y-1) && this.isValidDefender(x, y-2)) {
-                console.log("capture C");
-                squares[y-1][x] = "";
+                removePieces.push({ x, y: y-1 });
             }
             if (y + 2 <= 6 && this.isAttacker(x, y+1) && this.isValidDefender(x, y+2)) {
-                console.log("capture D");
-                squares[y+1][x] = "";
+                removePieces.push({ x, y: y+1 });
             }
         }
-        this.setState({ squares: squares });
+        return removePieces;
     }
 
     render = () => {
