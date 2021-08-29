@@ -12,15 +12,16 @@ export class Game extends React.Component {
             "A": "Attacker", 
             "D": "Defender", 
             "AW": "AttackerWin",
-            "DW": "DefenderWin"
+            "DW": "DefenderWin",
+            "DRAW": "Draw"
         };
-        
         this.state = {
             squares: this.defaultBoardLayout(), // the board is a 7x7 grid
             currentTurn: "A",
             pieceInHand: null,
             pieceOrigX: null,
-            pieceOrigY: null
+            pieceOrigY: null,
+            moves: []
         };
     }
 
@@ -49,6 +50,21 @@ export class Game extends React.Component {
             currentTurn: "A"
         });
         console.log("Game reset");
+    }
+
+    attackersWin = () => {
+        console.log("Attackers win!");
+        this.setState({ currentTurn: "AW" });
+    }
+
+    defendersWin = () => {
+        console.log("Defenders win!");
+        this.setState({ currentTurn: "DW" });
+    }
+
+    nobodyWins = () => {
+        console.log("It's a draw because nobody is moving");
+        this.setState({ currentTurn: "DRAW" });
     }
 
     componentDidUpdate = (prevProps, prevState) => {
@@ -102,6 +118,17 @@ export class Game extends React.Component {
             pieceOrigX: this.state.pieceOrigX,
             pieceOrigY: this.state.pieceOrigY
         };
+    }
+
+    getKing = () => {
+        for (let y=0; y<=6; y++) {
+            for (let x=0; x<=6; x++) {
+                if (this.state.squares[y][x] === "K") {
+                    return { x, y };
+                }
+            }
+        }
+        return null;
     }
 
     pickUpPiece = (x, y) => {
@@ -243,9 +270,18 @@ export class Game extends React.Component {
         this.captureCheck(toX, toY);
         // check if this move triggers an escape for the king - only need to check when the king moves
         if (movedPiece === "K" && this.escapeCheck()) {
-            console.log("Defenders win!");
-            this.setState({ currentTurn: "DW" }); // defenders win
+            this.defendersWin();
         }
+        // check if the king is surrounded
+        if (this.surroundedCheck()) {
+            this.attackersWin();
+        }
+        // keep track of the moves so we can check if the players are just going back and forth
+        let moves = this.state.moves.slice();
+        const lastMove = { piece: movedPiece, x: toX, y: toY };
+        // TODO: compare the last moves, remember that turns alternate
+        moves.push(lastMove);
+        this.setState({ moves: moves });
         return true;
     }
 
@@ -271,8 +307,37 @@ export class Game extends React.Component {
     }
 
     surroundedCheck = () => {
-        // TODO: code to check if King is surrounded by attackers
         // remember that if cornersWin is set that King only needs to be surrounded on 3 sides (since he could be on an edge)
+        const king = this.getKing();
+        if (king !== null) {
+            const { x, y } = king;
+            if (x === 0) {
+                if (this.isAttacker(x, y-1) && this.isAttacker(x, y+1) && this.isAttacker(x+1, y)) {
+                    // left edge
+                    return true;
+                }
+            } else if (x === 6) {
+                if (this.isAttacker(x, y-1) && this.isAttacker(x, y+1) && this.isAttacker(x-1, y)) {
+                    // right edge
+                    return true;
+                }
+            } else if (y === 0) {
+                if (this.isAttacker(x-1, y) && this.isAttacker(x+1, y) && this.isAttacker(x, y+1)) {
+                    // top edge
+                    return true;
+                }
+            } else if (y === 6) {
+                if (this.isAttacker(x-1, y) && this.isAttacker(x+1, y) && this.isAttacker(x, y-1)) {
+                    // bottom edge
+                    return true;
+                }
+            } else {
+                if (this.isAttacker(x-1, y) && this.isAttacker(x+1, y) && this.isAttacker(x, y-1) && this.isAttacker(x, y+1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     captureCheck = (x, y) => {
